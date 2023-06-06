@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin-top: 200px;
+        display: grid;
+        place-items: center;
+        background: #352f2f;
+      }
+      input {
+        background: #ac9f9f;
+        grid-column: 1/6;
+        border-radius: 10px 10px 5px 5px;
+        border: none;
+        font-size: 2.5rem;
+      }
+      div {
+        height: 500px;
+        display: grid;
+        gap: 0.5rem;
+        position: relative;
+      }
+      button {
+        border-radius: 5px;
+        border: none;
+        font-size: 2.5rem;
+        transition: 0.1s;
+        box-shadow: 4px 4px 5px rgb(19, 17, 17);
+      }
+      #clear {
+        background: rgb(201, 151, 158);
+        width: auto;
+        grid-row: 5;
+        grid-column: 1/4;
+        border-radius: 5px 5px 5px 30px;
+      }
+      .number {
+        background: #adc2c5;
+      }
+      .operator {
+        background: #c44d4d;
+      }
+      #isEqual {
+        background: rgb(215, 154, 75);
+        grid-row: 4/6;
+        grid-column: 5;
+        border-radius: 5px 5px 30px 5px;
+      }
+      button:hover {
+        transform: scale(1.02, 1.02);
+      }
+      #undo {
+        position: absolute;
+        right: -3.2em;
+        height: calc(20% - 0.4rem);
+        border-radius: 10px;
+        background: #cc8f8f;
+      }
+      #dot {
+        grid-area: 5/4/5/4;
+        background: #ec8686;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <input type="text" />
+      <button class="number">1</button>
+      <button class="number">2</button>
+      <button class="number">3</button>
+      <button class="number">4</button>
+      <button class="number">5</button>
+      <button class="number">6</button>
+      <button class="number">7</button>
+      <button class="number">8</button>
+      <button class="number">9</button>
+      <button class="number">0</button>
+      <button id="dot" class="number">.</button>
+
+      <button class="operator">+</button>
+      <button class="operator">-</button>
+      <button class="operator">*</button>
+      <button class="operator">/</button>
+
+      <button id="undo">delete</button>
+      <button id="isEqual">=</button>
+      <button id="clear">clear</button>
+    </div>
+    <script>
+      const allButtons = document.querySelectorAll("button");
+      const numbers = document.querySelectorAll(".number");
+      const operators = document.querySelectorAll(".operator");
+      const clear = document.querySelector("#clear");
+      const isEqual = document.querySelector("#isEqual");
+      const input = document.querySelector("input");
+      const undo = document.querySelector("#undo");
+      const calculatorNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, "."];
+      const calculatorOperators = ["+", "-", "*", "/"];
+
+      //Setting eventListeners for the BUttons
+      for (let i = 0; i < numbers.length; i++) {
+        numbers[i].addEventListener("click", () => {
+          input.value = input.value + calculatorNumbers[i];
+          if (/not valid/i.test(input.value)) {
+            input.value = "" + calculatorNumbers[i];
+          }
+        });
+      }
+      for (let i = 0; i < operators.length; i++) {
+        operators[i].addEventListener("click", () => {
+          input.value = input.value + " " + calculatorOperators[i] + " ";
+          if (/not valid/i.test(input.value)) {
+            input.value = "" + calculatorOperators[i] + " ";
+          }
+        });
+      }
+      // undo button
+      undo.addEventListener("click", () => {
+        let inputValueArray = input.value.split("");
+
+        while (inputValueArray[inputValueArray.length - 1] === " ") {
+          console.log(inputValueArray.splice(-1, 1));
+          input.value = inputValueArray.join("");
+        }
+        inputValueArray.splice(-1, 1);
+
+        input.value = inputValueArray.join("");
+      });
+
+      //clear button
+      clear.addEventListener("click", () => {
+        input.value = "";
+      });
+
+      //Operating function
+      function operate(a, operator, b) {
+        if (operator === "+") {
+          return parseFloat(a) + parseFloat(b);
+        }
+        if (operator === "-") {
+          return parseFloat(a) - parseFloat(b);
+        }
+        if (operator === "*") {
+          return parseFloat(a) * parseFloat(b);
+        }
+        if (operator === "/") {
+          return parseFloat(a) / parseFloat(b);
+        }
+      }
+      //calculate when pressing isEqual
+      isEqual.addEventListener("click", () => {
+        let equation = input.value.split(" ");
+        // calculate the equation
+        while (equation.length > 1) {
+          equation[0] = operate(equation[0], equation[1], equation[2]);
+          equation.splice(1, 2);
+        }
+        //test if result is valid
+        equation = equation.map((value) => {
+          if (
+            /^\d{1,}\.\d{1,}$/.test(value) ||
+            /^\d{1,}$/.test(value) ||
+            /^[(+||-||*||/)]$/.test(value)
+          ) {
+            return value;
+          } else {
+            return "Not valid";
+          }
+        });
+        //return result
+        input.value = equation[0];
+      });
+    </script>
+  </body>
+</html>
